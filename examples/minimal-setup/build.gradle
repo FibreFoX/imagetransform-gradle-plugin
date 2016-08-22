@@ -1,0 +1,22 @@
+buildscript {
+    dependencies {
+        classpath group: 'de.dynamicfiles.projects.gradle.plugins', name: 'imagetransform-gradle-plugin', version: '1.0.0-SNAPSHOT'
+    }
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+
+    }
+}
+
+apply plugin: 'imagetransform-gradle-plugin'
+
+transformImages {
+    from 'src/main/images/*.png', {
+        toPNG '64x64', 'build/jfx/app/blub.png'
+        toICO '64x64', 'build/jfx/app/blub.ico'
+        toBMP '64x64', 'build/jfx/app/blub.bmp'
+        toICNS '64x64', 'build/jfx/app/blub.icns'
+    }
+}
