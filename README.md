@@ -6,7 +6,7 @@ Imagetransform-Gradle-Plugin
 Why does this gradle-plugin exist?
 ==================================
 
-
+https://github.com/FibreFoX/javafx-gradle-plugin/issues/25
 
 
 
