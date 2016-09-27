@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/FibreFoX/imagetransform-gradle-plugin.svg?branch=master)](https://travis-ci.org/FibreFoX/imagetransform-gradle-plugin)
+
 Imagetransform-Gradle-Plugin
 ============================
 
