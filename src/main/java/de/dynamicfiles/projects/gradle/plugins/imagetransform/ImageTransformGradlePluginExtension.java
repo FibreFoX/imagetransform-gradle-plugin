@@ -28,6 +28,27 @@ public class ImageTransformGradlePluginExtension {
     public void from(String source, Closure closure) {
         ImageFormatTarget imageFormatTarget = new ImageFormatTarget();
         ConfigureUtil.configure(closure, imageFormatTarget);
+        
+        // TODO prepare conversion-maps
+    }
+
+    private boolean noAutoBinding = false;
+    private String appName = null;
+
+    public boolean isNoAutoBinding() {
+        return noAutoBinding;
+    }
+
+    public void setNoAutoBinding(boolean noAutoBinding) {
+        this.noAutoBinding = noAutoBinding;
+    }
+
+    public String getAppName() {
+        return appName;
+    }
+
+    public void setAppName(String appName) {
+        this.appName = appName;
     }
 
 }
