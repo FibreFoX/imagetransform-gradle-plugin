@@ -1,5 +1,5 @@
 Imagetransform-Gradle-Plugin
-====================
+============================
 
 
 
@@ -51,7 +51,7 @@ Last Release Notes
 
 **Version 1.0.0 (???-2016)**
 
-
+**NOT YET RELEASED - still in development**
 
 
 (Not yet) Release(d) Notes
