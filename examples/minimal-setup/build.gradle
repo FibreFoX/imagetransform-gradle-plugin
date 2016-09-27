@@ -1,12 +1,12 @@
 buildscript {
+    apply from: '../../version.gradle'
     dependencies {
-        classpath group: 'de.dynamicfiles.projects.gradle.plugins', name: 'imagetransform-gradle-plugin', version: '1.0.0-SNAPSHOT'
+        classpath group: 'de.dynamicfiles.projects.gradle.plugins', name: 'imagetransform-gradle-plugin', version: "${gradle.imagetransformGradlePluginVersion}"
     }
     repositories {
         mavenLocal()
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
-
     }
 }
 

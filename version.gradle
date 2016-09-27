@@ -1,0 +1,3 @@
+gradle.ext {
+    imagetransformGradlePluginVersion = '1.0.0-SNAPSHOT'
+}

@@ -24,16 +24,21 @@ apply plugin: 'checkstyle'
 repositories {
     mavenLocal()
     mavenCentral()
+    // use apache-repo for latest commons-imaging (as it is not available on maven-central yet)
+    maven { url "https://repository.apache.org/content/repositories/snapshots/" }
 }
 
 dependencies {
     compile gradleApi()
-    // TODO
+    // used for icns-conversion, make it visible as runtime-dependency
+    compile group: 'org.apache.commons', name: 'commons-imaging', version: '1.0-SNAPSHOT'
+    
+    // compile group: 'org.apache.sanselan', name: 'sanselan', version: '0.97-incubator'
 }
 
 group = 'de.dynamicfiles.projects.gradle.plugins'
 archivesBaseName = 'imagetransform-gradle-plugin'
-version = '1.0.0-SNAPSHOT'
+version = gradle.imagetransformGradlePluginVersion
 
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
