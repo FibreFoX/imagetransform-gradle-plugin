@@ -15,8 +15,13 @@
  */
 package de.dynamicfiles.projects.gradle.plugins.imagetransform;
 
+import de.dynamicfiles.projects.gradle.plugins.imagetransform.tasks.TransformTask;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Optional;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 
 /**
  *
@@ -28,11 +33,42 @@ public class ImageTransformGradlePlugin implements Plugin<Project> {
     public void apply(Project project) {
         // extend project-model to get our settings/configuration via nice configuration
         project.getExtensions().create("transformImages", ImageTransformGradlePluginExtension.class);
-        // TODO
-//        project.exec(action -> {
-//            action.executable("");
-//            action.args("");
-//        });
+
+        // "There can be only one" ;)
+        TransformTask transformTask = project.getTasks().replace("transformImages", TransformTask.class);
+
+        // as this plugin was requested for the javafx-gradle-plugin, we do auto-plumbing here ;)
+        project.afterEvaluate(evaluatedProject -> {
+            // get current configuration
+            ImageTransformGradlePluginExtension ext = project.getExtensions().getByType(ImageTransformGradlePluginExtension.class);
+
+            // but only when wanted, it's possible to opt-out this feature
+            if( !ext.isNoAutoBinding() ){
+                Optional.ofNullable(evaluatedProject.getTasks().getByName("jfxNative")).ifPresent(jfxNativeTask -> {
+                    jfxNativeTask.dependsOn(transformTask);
+                });
+            }
+
+            // try to get appName, if not set (would overwrite wanted value otherwise...)
+            if( ext.getAppName() == null || ext.getAppName().trim().isEmpty() ){
+                // try to work on "jfx"-extension
+                Optional.ofNullable(project.getExtensions().findByName("jfx")).ifPresent(jfxExt -> {
+                    Class<? extends Object> jfxExtClass = jfxExt.getClass();
+                    try{
+                        // no class information here, using reflection
+                        Method method = jfxExtClass.getMethod("getAppName");
+                        Optional.ofNullable(method.invoke(jfxExt))
+                                .ifPresent(appName -> {
+                                    if( appName instanceof String ){
+                                        ext.setAppName((String) appName);
+                                    }
+                                });
+                    } catch(NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex){
+                        project.getLogger().warn(null, ex);
+                    }
+                });
+            }
+        });
     }
 
 }
