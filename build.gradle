@@ -31,9 +31,9 @@ repositories {
 dependencies {
     compile gradleApi()
     // used for icns-conversion, make it visible as runtime-dependency
-    compile group: 'org.apache.commons', name: 'commons-imaging', version: '1.0-SNAPSHOT'
     
-    // compile group: 'org.apache.sanselan', name: 'sanselan', version: '0.97-incubator'
+    //compile group: 'org.apache.commons', name: 'commons-imaging', version: '1.0-SNAPSHOT'
+    compile group: 'org.apache.sanselan', name: 'sanselan', version: '0.97-incubator'
 }
 
 group = 'de.dynamicfiles.projects.gradle.plugins'
