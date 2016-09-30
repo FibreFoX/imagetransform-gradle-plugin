@@ -15,7 +15,15 @@
  */
 package de.dynamicfiles.projects.gradle.plugins.imagetransform.tasks;
 
+import de.dynamicfiles.projects.gradle.plugins.imagetransform.ImageTransformGradlePluginExtension;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.sanselan.ImageReadException;
+import org.apache.sanselan.Sanselan;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskAction;
 
 /**
@@ -26,7 +34,17 @@ public class TransformTask extends DefaultTask {
 
     @TaskAction
     public void performTransformations() {
-        // TODO
+        Project project = getProject();
+        // get all transformation entries
+        ImageTransformGradlePluginExtension ext = project.getExtensions().getByType(ImageTransformGradlePluginExtension.class);
+
+        try{
+            // TODO
+            Sanselan.getBufferedImage(new File(""));
+        } catch(ImageReadException | IOException ex){
+            Logger.getLogger(TransformTask.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
 
 }

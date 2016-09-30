@@ -15,6 +15,8 @@
  */
 package de.dynamicfiles.projects.gradle.plugins.imagetransform.dto;
 
+import java.util.List;
+
 /**
  *
  * @author Danny Althoff
@@ -34,6 +36,38 @@ public class ImageFormatTarget {
     }
 
     public void toICNS(String resolution, String destination) {
+
+    }
+
+    public void toPNG(List<String> resolutions, String destination) {
+
+    }
+
+    public void toICO(List<String> resolutions, String destination) {
+
+    }
+
+    public void toBMP(List<String> resolutions, String destination) {
+
+    }
+
+    public void toICNS(List<String> resolutions, String destination) {
+
+    }
+
+    public void toPNG(List<String> resolutions, List<String> destinations) {
+
+    }
+
+    public void toICO(List<String> resolutions, List<String> destinations) {
+
+    }
+
+    public void toBMP(List<String> resolutions, List<String> destinations) {
+
+    }
+
+    public void toICNS(List<String> resolutions, List<String> destinations) {
 
     }
 }

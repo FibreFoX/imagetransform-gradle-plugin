@@ -36,6 +36,8 @@ public class ImageTransformGradlePlugin implements Plugin<Project> {
         // "There can be only one" ;)
         TransformTask transformTask = project.getTasks().replace("transformImages", TransformTask.class);
 
+        transformTask.setDescription("Convert images into a different format");
+
         // as this plugin was requested for the javafx-gradle-plugin, we do auto-plumbing here ;)
         project.afterEvaluate(evaluatedProject -> {
             // get current configuration
@@ -43,7 +45,7 @@ public class ImageTransformGradlePlugin implements Plugin<Project> {
 
             // but only when wanted, it's possible to opt-out this feature
             if( !ext.isNoAutoBinding() ){
-                Optional.ofNullable(evaluatedProject.getTasks().getByName("jfxNative")).ifPresent(jfxNativeTask -> {
+                Optional.ofNullable(evaluatedProject.getTasks().findByName("jfxNative")).ifPresent(jfxNativeTask -> {
                     jfxNativeTask.dependsOn(transformTask);
                 });
             }

@@ -17,6 +17,11 @@ package de.dynamicfiles.projects.gradle.plugins.imagetransform;
 
 import de.dynamicfiles.projects.gradle.plugins.imagetransform.dto.ImageFormatTarget;
 import groovy.lang.Closure;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import org.gradle.api.file.FileCollection;
 import org.gradle.util.ConfigureUtil;
 
 /**
@@ -25,15 +30,32 @@ import org.gradle.util.ConfigureUtil;
  */
 public class ImageTransformGradlePluginExtension {
 
-    public void from(String source, Closure closure) {
+    private List<ImageTransformEntry> transformEntries = new ArrayList<>();
+
+    public void from(String singleSourcePath, Closure closure) {
         ImageFormatTarget imageFormatTarget = new ImageFormatTarget();
         ConfigureUtil.configure(closure, imageFormatTarget);
-        
+
         // TODO prepare conversion-maps
+        if( singleSourcePath.contains("*") ){
+            // NOPE, has to be done via files("something/*.ext")
+        }
+    }
+
+    public void from(FileCollection multipleSources, Closure closure) {
+        Set<File> files = multipleSources.getFiles();
+        if( files.isEmpty() ){
+            return;
+        }
+
+        ImageFormatTarget imageFormatTarget = new ImageFormatTarget();
+        ConfigureUtil.configure(closure, imageFormatTarget);
     }
 
     private boolean noAutoBinding = false;
     private String appName = null;
+    private boolean appendResolution = true;
+    private String resolutionFilenameDelimiter = "-";
 
     public boolean isNoAutoBinding() {
         return noAutoBinding;
@@ -49,6 +71,22 @@ public class ImageTransformGradlePluginExtension {
 
     public void setAppName(String appName) {
         this.appName = appName;
+    }
+
+    public boolean isAppendResolution() {
+        return appendResolution;
+    }
+
+    public void setAppendResolution(boolean appendResolution) {
+        this.appendResolution = appendResolution;
+    }
+
+    public String getResolutionFilenameDelimiter() {
+        return resolutionFilenameDelimiter;
+    }
+
+    public void setResolutionFilenameDelimiter(String resolutionFilenameDelimiter) {
+        this.resolutionFilenameDelimiter = resolutionFilenameDelimiter;
     }
 
 }
