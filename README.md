@@ -72,10 +72,10 @@ task convertImages(type: de.dynamicfiles.projects.gradle.plugins.imagetransform.
     addTransformations {
         from 'src/main/images/source.png', {
             // the last "true" appends the resolution as part of the filename
-            toPNG(['64x64', '128x128'], 'build/jfx/app/*', true)
-            toICO(['64x64', '128x128'], 'build/jfx/app/*', true)
-            toBMP(['64x64', '128x128'], 'build/jfx/app/*', true)
-            toICNS(['64x64', '128x128'], 'build/jfx/app/*', true)
+            toPNG('128x128', 'build/jfx/app/*', true)
+            toICO('128x128', 'build/jfx/app/*', true)
+            toBMP('64x64', 'build/jfx/app/*', true)
+            toICNS('64x64', 'build/jfx/app/*', true)
         }
     }
 }
