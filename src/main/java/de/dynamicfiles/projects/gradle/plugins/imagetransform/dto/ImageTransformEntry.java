@@ -28,4 +28,15 @@ public class ImageTransformEntry {
     public String resolution = null;
     public boolean appendResolution = false;
     public ImageFormat format = null;
+
+    public ImageTransformEntry getCopy() {
+        ImageTransformEntry imageTransformEntry = new ImageTransformEntry();
+        imageTransformEntry.source = source;
+        imageTransformEntry.destination = destination;
+        imageTransformEntry.resolution = resolution;
+        imageTransformEntry.appendResolution = appendResolution;
+        imageTransformEntry.format = format;
+        return imageTransformEntry;
+    }
+
 }

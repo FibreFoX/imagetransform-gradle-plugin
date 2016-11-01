@@ -49,7 +49,14 @@ public class ImageTransformGradlePlugin implements Plugin<Project> {
             ImageTransformGradlePluginExtension ext = project.getExtensions().getByType(ImageTransformGradlePluginExtension.class);
 
             // set global registered entries as output-files
-            // registerTransformEntryOutputs(project, transformTask, ext.getTransformEntries());
+            List<ImageTransformEntry> globalTransformEntries = ext.getProcessedTransformEntries(evaluatedProject);
+            evaluatedProject.getLogger().info(String.format("Found %s global entries", globalTransformEntries.size()));
+            registerTransformEntryOutputs(evaluatedProject, transformTask, globalTransformEntries);
+
+            // set task specific registered entries as output-files
+            List<ImageTransformEntry> taskTransformEntries = transformTask.getTaskSpecificExt().getProcessedTransformEntries(evaluatedProject);
+            evaluatedProject.getLogger().info(String.format("Found %s task entries", taskTransformEntries.size()));
+            registerTransformEntryOutputs(evaluatedProject, transformTask, taskTransformEntries);
 
             // but only when wanted, it's possible to opt-out this feature
             if( !ext.isNoAutoBinding() ){
@@ -85,15 +92,14 @@ public class ImageTransformGradlePlugin implements Plugin<Project> {
             return;
         }
         // register all generated files as task-output for "up-to-date"-checking
-        task.getOutputs().files(
-                transformEntries.stream().map(transformEntry -> {
-                    File destinationFile = new File(transformEntry.destination);
-                    if( destinationFile.isAbsolute() ){
-                        return destinationFile;
-                    }
-                    return new File(project.getProjectDir(), transformEntry.destination);
-                }).collect(Collectors.toList())
-        );
+        task.getOutputs().upToDateWhen(upToDateTask -> {
+            List<File> possibleDestinationFiles = transformEntries.stream().parallel().map(transformEntry -> {
+                return new File(transformEntry.destination);
+            }).collect(Collectors.toList());
+            long existingDestinationFilesCount = possibleDestinationFiles.stream().parallel().filter(File::exists).count();
+            // if existing files are equal to possible files, this task is up2date
+            return possibleDestinationFiles.size() == existingDestinationFilesCount;
+        });
     }
 
 }
