@@ -149,15 +149,15 @@ public class ImageTransformGradlePluginExtension {
                         // set new filename like source, just with replaced extension
                         String sourceFileName = sourceFile.getName();
                         int lastIndexOfDot = sourceFileName.lastIndexOf('.');
-                        String sourceFileNameFirstPart = sourceFileName.substring(0, lastIndexOfDot);
                         if( lastIndexOfDot < 0 ){
                             // no dot inside source filename
                             if( validTransformEntry.appendResolution ){
-                                validTransformEntry.destination = destinationFile.getParentFile().toPath().resolve(sourceFileNameFirstPart + resolutionFilenameDelimiter + validTransformEntry.resolution + sourceFileName.substring(lastIndexOfDot, sourceFileName.length() - 1)).toFile().getAbsolutePath();
+                                validTransformEntry.destination = destinationFile.getParentFile().toPath().resolve(sourceFileName + resolutionFilenameDelimiter + validTransformEntry.resolution).toFile().getAbsolutePath();
                             } else {
                                 validTransformEntry.destination = destinationFile.getParentFile().toPath().resolve(sourceFileName).toFile().getAbsolutePath();
                             }
                         } else {
+                            String sourceFileNameFirstPart = sourceFileName.substring(0, lastIndexOfDot);
                             if( validTransformEntry.appendResolution ){
                                 validTransformEntry.destination = destinationFile.getParentFile().toPath().resolve(sourceFileNameFirstPart + resolutionFilenameDelimiter + validTransformEntry.resolution + "." + validTransformEntry.format.getExtension().toLowerCase()).toFile().getAbsolutePath();
                             } else {
