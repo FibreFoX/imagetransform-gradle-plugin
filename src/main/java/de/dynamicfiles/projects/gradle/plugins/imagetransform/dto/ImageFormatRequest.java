@@ -103,40 +103,40 @@ public class ImageFormatRequest {
     }
 
     public void toPNG(List<String> resolutions, String destination) {
-        toPNG(resolutions, destination, false);
+        toPNG(resolutions, destination, true);
     }
 
-    public void toPNG(List<String> resolutions, String destination, boolean appendResolution) {
+    private void toPNG(List<String> resolutions, String destination, boolean appendResolution) {
         resolutions.stream().forEach(resolution -> {
             toPNG(resolution, destination, appendResolution);
         });
     }
 
     public void toICO(List<String> resolutions, String destination) {
-        toICO(resolutions, destination, false);
+        toICO(resolutions, destination, true);
     }
 
-    public void toICO(List<String> resolutions, String destination, boolean appendResolution) {
+    private void toICO(List<String> resolutions, String destination, boolean appendResolution) {
         resolutions.stream().forEach(resolution -> {
             toICO(resolution, destination, appendResolution);
         });
     }
 
     public void toBMP(List<String> resolutions, String destination) {
-        toBMP(resolutions, destination, false);
+        toBMP(resolutions, destination, true);
     }
 
-    public void toBMP(List<String> resolutions, String destination, boolean appendResolution) {
+    private void toBMP(List<String> resolutions, String destination, boolean appendResolution) {
         resolutions.stream().forEach(resolution -> {
             toBMP(resolution, destination, appendResolution);
         });
     }
 
     public void toICNS(List<String> resolutions, String destination) {
-        toICNS(resolutions, destination, false);
+        toICNS(resolutions, destination, true);
     }
 
-    public void toICNS(List<String> resolutions, String destination, boolean appendResolution) {
+    private void toICNS(List<String> resolutions, String destination, boolean appendResolution) {
         resolutions.stream().forEach(resolution -> {
             toICNS(resolution, destination, appendResolution);
         });
