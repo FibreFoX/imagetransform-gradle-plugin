@@ -19,6 +19,7 @@ import de.dynamicfiles.projects.gradle.plugins.imagetransform.dto.ImageTransform
 import de.dynamicfiles.projects.gradle.plugins.imagetransform.ImageTransformGradlePluginExtension;
 import groovy.lang.Closure;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -106,16 +107,30 @@ public class TransformTask extends DefaultTask {
                         // create parent folders if not existing
                         Files.createDirectories(destinationFile.toPath().getParent());
 
-                        // TODO work on this item :)
                         Dimension imageSize = Imaging.getImageSize(sourceFile);
 //                        System.out.println("Source has dimention: " + imageSize.getWidth() + "x" + imageSize.getHeight());
                         BufferedImage bufferedImage = Imaging.getBufferedImage(sourceFile);
-                        
-//                        bufferedImage.getScaledInstance(0, 0, Image.SCALE_SMOOTH);
+                        int bufferedImageType = bufferedImage.getType();
+
+                        String[] splitResolution = validTransformEntry.resolution.split("x");
+                        int width = Integer.parseUnsignedInt(splitResolution[0], 10);
+                        int height = Integer.parseUnsignedInt(splitResolution[1], 10);
+
+                        // some references for resizing images:
+                        // * http://stackoverflow.com/questions/16497853/scale-a-bufferedimage-the-fastest-and-easiest-way
+                        // * https://community.oracle.com/docs/DOC-983611
+                        // * http://stackoverflow.com/questions/4216123/how-to-scale-a-bufferedimage
+                        // * http://stackoverflow.com/questions/19212990/what-is-an-imageobserver#19213140
+                        BufferedImage scaledImage = new BufferedImage(width, height, bufferedImageType != 0 ? bufferedImageType : BufferedImage.TYPE_INT_ARGB);
+
+                        Graphics2D graphicsTarget = scaledImage.createGraphics();
+                        // this might be ASYNC !!! because "drawImage" might not being finised yet  :(
+                        graphicsTarget.drawImage(bufferedImage, 0, 0, width, height, null);
+                        graphicsTarget.dispose();
 
                         System.out.println("Trying to write image-file: " + destinationFile.getAbsolutePath());
-                        Imaging.writeImage(bufferedImage, destinationFile, validTransformEntry.format, new HashMap<>());
-                    } catch(IOException | ImageReadException | ImageWriteException ex){
+                        Imaging.writeImage(scaledImage, destinationFile, validTransformEntry.format, new HashMap<>());
+                    } catch(NumberFormatException | IOException | ImageReadException | ImageWriteException ex){
 //                        ex.printStackTrace();
                         if( destinationFile.exists() ){
                             destinationFile.delete();
