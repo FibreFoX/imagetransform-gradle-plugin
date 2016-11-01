@@ -15,10 +15,15 @@
  */
 package de.dynamicfiles.projects.gradle.plugins.imagetransform;
 
+import de.dynamicfiles.projects.gradle.plugins.imagetransform.dto.ImageTransformEntry;
 import de.dynamicfiles.projects.gradle.plugins.imagetransform.tasks.TransformTask;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import org.gradle.api.DefaultTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
@@ -36,12 +41,15 @@ public class ImageTransformGradlePlugin implements Plugin<Project> {
         // "There can be only one" ;)
         TransformTask transformTask = project.getTasks().replace("transformImages", TransformTask.class);
 
-        transformTask.setDescription("Convert images into a different format");
+        transformTask.setDescription("Convert images into different formats");
 
         // as this plugin was requested for the javafx-gradle-plugin, we do auto-plumbing here ;)
         project.afterEvaluate(evaluatedProject -> {
             // get current configuration
             ImageTransformGradlePluginExtension ext = project.getExtensions().getByType(ImageTransformGradlePluginExtension.class);
+
+            // set global registered entries as output-files
+            // registerTransformEntryOutputs(project, transformTask, ext.getTransformEntries());
 
             // but only when wanted, it's possible to opt-out this feature
             if( !ext.isNoAutoBinding() ){
@@ -70,6 +78,22 @@ public class ImageTransformGradlePlugin implements Plugin<Project> {
                 });
             }
         });
+    }
+
+    private void registerTransformEntryOutputs(Project project, DefaultTask task, List<ImageTransformEntry> transformEntries) {
+        if( transformEntries == null || transformEntries.isEmpty() ){
+            return;
+        }
+        // register all generated files as task-output for "up-to-date"-checking
+        task.getOutputs().files(
+                transformEntries.stream().map(transformEntry -> {
+                    File destinationFile = new File(transformEntry.destination);
+                    if( destinationFile.isAbsolute() ){
+                        return destinationFile;
+                    }
+                    return new File(project.getProjectDir(), transformEntry.destination);
+                }).collect(Collectors.toList())
+        );
     }
 
 }

@@ -15,14 +15,15 @@
  */
 package de.dynamicfiles.projects.gradle.plugins.imagetransform;
 
-import de.dynamicfiles.projects.gradle.plugins.imagetransform.dto.ImageFormatTarget;
+import de.dynamicfiles.projects.gradle.plugins.imagetransform.dto.ImageTransformEntry;
+import de.dynamicfiles.projects.gradle.plugins.imagetransform.dto.ImageFormatRequest;
 import groovy.lang.Closure;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import org.gradle.api.GradleException;
 import org.gradle.api.file.FileCollection;
-import org.gradle.util.ConfigureUtil;
 
 /**
  *
@@ -33,13 +34,25 @@ public class ImageTransformGradlePluginExtension {
     private List<ImageTransformEntry> transformEntries = new ArrayList<>();
 
     public void from(String singleSourcePath, Closure closure) {
-        ImageFormatTarget imageFormatTarget = new ImageFormatTarget();
-        ConfigureUtil.configure(closure, imageFormatTarget);
-
-        // TODO prepare conversion-maps
         if( singleSourcePath.contains("*") ){
             // NOPE, has to be done via files("something/*.ext")
+            throw new GradleException("You transformImages-configuration is faulty! Please make sure to specify multiple source-files via \"fileTree('someFolder').include('*.ext')\".");
         }
+
+        ImageFormatRequest imageFormatTarget = new ImageFormatRequest();
+        imageFormatTarget.setSource(singleSourcePath);
+
+        // org.gradle.util.ConfigureUtil is considered to be "internal"
+        // https://discuss.gradle.org/t/entire-package-org-gradle-util-is-missing-from-javadoc-and-groovydoc/14407/5
+        closure.setDelegate(imageFormatTarget);
+        closure.setResolveStrategy(Closure.DELEGATE_FIRST);
+        closure.call();
+
+        transformEntries.addAll(imageFormatTarget.getTransformEntries());
+    }
+
+    public void from(File singleFileSources, Closure closure) {
+        from(singleFileSources.getAbsolutePath(), closure);
     }
 
     public void from(FileCollection multipleSources, Closure closure) {
@@ -48,13 +61,20 @@ public class ImageTransformGradlePluginExtension {
             return;
         }
 
-        ImageFormatTarget imageFormatTarget = new ImageFormatTarget();
-        ConfigureUtil.configure(closure, imageFormatTarget);
+        files.forEach(file -> {
+            from(file.getAbsolutePath(), closure);
+        });
     }
 
+    public List<ImageTransformEntry> getTransformEntries() {
+        return transformEntries;
+    }
+
+    // javafx-gradle-plugin stuff
     private boolean noAutoBinding = false;
     private String appName = null;
-    private boolean appendResolution = true;
+    // normal stuff
+    private boolean appendResolution = false;
     private String resolutionFilenameDelimiter = "-";
 
     public boolean isNoAutoBinding() {
