@@ -1,11 +1,23 @@
 language: java
 
 ## http://blog.travis-ci.com/2015-10-14-opening-up-ubuntu-trusty-beta/
-sudo: required
-dist: trusty
 
-jdk:
-  - oraclejdk8
+matrix:
+  include:
+    - os: linux
+      sudo: required
+      dist: trusty
+      jdk: oraclejdk8
+      env: FAILURES_ALLOWED=false
+    - os: linux
+      sudo: false
+      jdk: oraclejdk8
+      env: FAILURES_ALLOWED=false
+    - os: osx
+      osx_image: xcode8
+      env: FAILURES_ALLOWED=false
+  allow_failures:
+    - env: FAILURES_ALLOWED=true
 
 # http://stackoverflow.com/questions/35128777/travis-ci-build-failed#comment58070003_35153221
 before_install:
