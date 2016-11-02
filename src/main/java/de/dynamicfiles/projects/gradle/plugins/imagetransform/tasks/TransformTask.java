@@ -20,7 +20,9 @@ import de.dynamicfiles.projects.gradle.plugins.imagetransform.ImageTransformGrad
 import groovy.lang.Closure;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -106,14 +108,13 @@ public class TransformTask extends DefaultTask {
                     try{
                         // create parent folders if not existing
                         Files.createDirectories(destinationFile.toPath().getParent());
-                        
-                        // TODO only use commons-imaging if ImageIO lacks support for target format
 
+                        // TODO only use commons-imaging if ImageIO lacks support for target format
                         Dimension imageSize = Imaging.getImageSize(sourceFile);
 //                        System.out.println("Source has dimention: " + imageSize.getWidth() + "x" + imageSize.getHeight());
                         BufferedImage bufferedImage = Imaging.getBufferedImage(sourceFile);
                         int bufferedImageType = bufferedImage.getType();
-                        
+
                         String[] splitResolution = validTransformEntry.resolution.split("x");
                         int width = Integer.parseUnsignedInt(splitResolution[0], 10);
                         int height = Integer.parseUnsignedInt(splitResolution[1], 10);
@@ -126,20 +127,48 @@ public class TransformTask extends DefaultTask {
                         BufferedImage scaledImage = new BufferedImage(width, height, bufferedImageType != 0 ? bufferedImageType : BufferedImage.TYPE_INT_ARGB);
 
                         Graphics2D graphicsTarget = scaledImage.createGraphics();
-                        // this might be ASYNC !!! because "drawImage" might not being finised yet  :(
-                        graphicsTarget.drawImage(bufferedImage, 0, 0, width, height, null);
-                        graphicsTarget.dispose();
-
-                        System.out.println("Trying to write image-file: " + destinationFile.getAbsolutePath());
-                        // TODO handle incomplete Imaging-library
-                        // https://issues.apache.org/jira/browse/IMAGING-188
-                        Imaging.writeImage(scaledImage, destinationFile, validTransformEntry.format, new HashMap<>());
-                    } catch(NumberFormatException | IOException | ImageReadException | ImageWriteException ex){
+                        // drawImage works async, so make writeImage being called after that ;)
+                        boolean couldGenerateImage = graphicsTarget.drawImage(bufferedImage, 0, 0, width, height, (Image img, int infoflags, int x, int y, int width1, int height1) -> {
+                            project.getLogger().info("ImageObserver updateImage got called!");
+                            boolean abortedGeneratingImage = (infoflags & ImageObserver.ABORT) != 0;
+                            if( abortedGeneratingImage ){
+                                // skip this image-generation
+                                project.getLogger().info("Image-generation got aborted!");
+                                return false;
+                            }
+                            boolean finishedGeneratingImage = (infoflags & ImageObserver.ALLBITS) != 0;
+                            if( finishedGeneratingImage ){
+                                writeImage(graphicsTarget, project, destinationFile, scaledImage, validTransformEntry);
+                                return false;
+                            }
+                            return true;
+                        });
+                        if( couldGenerateImage ){
+                            project.getLogger().info("Image-generation completed!");
+                            writeImage(graphicsTarget, project, destinationFile, scaledImage, validTransformEntry);
+                        } else {
+                            project.getLogger().info("Image-generation did not complete!");
+                            // if could not generate image, hopefully "imageUpdate"/lambda will be called (hopefully)
+                        }
+                    } catch(NumberFormatException | IOException | ImageReadException ex){
 //                        ex.printStackTrace();
                         if( destinationFile.exists() ){
                             destinationFile.delete();
                         }
                     }
                 });
+    }
+
+    private void writeImage(Graphics2D graphicsTarget, Project project, File destinationFile, BufferedImage scaledImage, ImageTransformEntry validTransformEntry) {
+        graphicsTarget.dispose();
+
+        project.getLogger().info("Trying to write image-file: " + destinationFile.getAbsolutePath());
+        try{
+            // TODO handle incomplete Imaging-library
+            // https://issues.apache.org/jira/browse/IMAGING-188
+            Imaging.writeImage(scaledImage, destinationFile, validTransformEntry.format, new HashMap<>());
+        } catch(IOException | ImageWriteException ex){
+            project.getLogger().warn(null, ex);
+        }
     }
 }
