@@ -106,12 +106,14 @@ public class TransformTask extends DefaultTask {
                     try{
                         // create parent folders if not existing
                         Files.createDirectories(destinationFile.toPath().getParent());
+                        
+                        // TODO only use commons-imaging if ImageIO lacks support for target format
 
                         Dimension imageSize = Imaging.getImageSize(sourceFile);
 //                        System.out.println("Source has dimention: " + imageSize.getWidth() + "x" + imageSize.getHeight());
                         BufferedImage bufferedImage = Imaging.getBufferedImage(sourceFile);
                         int bufferedImageType = bufferedImage.getType();
-
+                        
                         String[] splitResolution = validTransformEntry.resolution.split("x");
                         int width = Integer.parseUnsignedInt(splitResolution[0], 10);
                         int height = Integer.parseUnsignedInt(splitResolution[1], 10);
@@ -129,6 +131,8 @@ public class TransformTask extends DefaultTask {
                         graphicsTarget.dispose();
 
                         System.out.println("Trying to write image-file: " + destinationFile.getAbsolutePath());
+                        // TODO handle incomplete Imaging-library
+                        // https://issues.apache.org/jira/browse/IMAGING-188
                         Imaging.writeImage(scaledImage, destinationFile, validTransformEntry.format, new HashMap<>());
                     } catch(NumberFormatException | IOException | ImageReadException | ImageWriteException ex){
 //                        ex.printStackTrace();

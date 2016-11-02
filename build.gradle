@@ -16,10 +16,20 @@
 
 import org.gradle.plugins.signing.Sign
 
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
+    }
+}
+
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'checkstyle'
+apply plugin: 'com.github.johnrengelman.shadow'
 
 repositories {
     mavenLocal()
@@ -28,10 +38,14 @@ repositories {
     maven { url "https://repository.apache.org/content/repositories/snapshots/" }
 }
 
+configurations {
+    shadowDependencies
+}
 dependencies {
     compile gradleApi()
     // used for icns-conversion, make it visible as runtime-dependency
-    compile group: 'org.apache.commons', name: 'commons-imaging', version: '1.0-SNAPSHOT'
+    shadowDependencies group: 'org.apache.commons', name: 'commons-imaging', version: '1.0-SNAPSHOT'
+    compile configurations.shadowDependencies
 }
 
 group = 'de.dynamicfiles.projects.gradle.plugins'
@@ -64,8 +78,13 @@ test {
     testLogging.showStandardStreams = true
 }
 
+shadowJar {
+    configurations = [project.configurations.shadowDependencies]
+}
+
 artifacts {
     archives jar
+    archives shadowJar
     archives javadocJar
     archives sourcesJar
 }

@@ -20,17 +20,23 @@ Please adjust your parameters accordingly:
 ```groovy
 buildscript {
     dependencies {
-        classpath group: 'de.dynamicfiles.projects.gradle.plugins', name: 'imagetransform-gradle-plugin', version: '1.0.0'
+        // if you have apache commons-imaging as part of your buildscript-dependencies, remove the classifier-part
+        // classpath group: 'org.apache.commons', name: 'commons-imaging', version: '1.0-SNAPSHOT'
+
+        classpath group: 'de.dynamicfiles.projects.gradle.plugins', name: 'imagetransform-gradle-plugin', version: '1.0.0', classifier: 'all'
     }
     
     repositories {
+        mavenLocal()
         mavenCentral()
-        // following is required for having "commons-imaging"-library
-        maven { url "https://repository.apache.org/content/repositories/snapshots/" }
+        
+        // only required if you are using apache commons-imaging yourself as part of the buildscript
+        // maven { url "https://repository.apache.org/content/repositories/snapshots/" }
     }
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
